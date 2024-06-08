@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
 using Scheduler;
+using Scheduler.Models;
 using Scheduler.Database;
 
 
@@ -18,7 +19,10 @@ builder.Services.AddMvc();
 builder.Services.AddDbContext<DatabaseContext>(options => options.UseNpgsql(connectionString));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
+builder.Services.AddScoped<IRepository<Person>, Repository<Person>>();
+builder.Services.AddScoped<IRepository<PersonEvent>, Repository<PersonEvent>>();
+builder.Services.AddScoped<IRepository<Event>, Repository<Event>>();
+builder.Services.AddScoped<IRepository<Holiday>, Repository<Holiday>>();
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -26,6 +30,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+
 
 app.UseHttpsRedirection();
 

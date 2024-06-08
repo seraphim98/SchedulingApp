@@ -10,30 +10,29 @@ using Scheduler;
 using Scheduler.Database;
 using Scheduler.Models;
 using System.Configuration;
+using NuGet.Protocol.Core.Types;
 
 namespace Scheduler.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class PeopleController(IDatabaseContext context, IMapper mapper) : ControllerBase
+    public class PeopleController(IRepository<Person> repository, IMapper mapper) : ControllerBase
     {
-        private readonly IDatabaseContext _context = context;
+        private readonly IRepository<Person> _repository = repository;
         private readonly IMapper _mapper = mapper;
-            
-
         // GET: api/People
         [HttpGet]
         public async Task<ActionResult<IEnumerable<PersonModel>>> GetPeople()
         {
-            var people = await _context.People.Select(person => _mapper.Map<PersonModel>(person)).ToListAsync();
-            return people;
+            var people = await _repository.Query();
+            return people.Select(person => _mapper.Map<PersonModel>(person)).ToList();
         }
 
         // GET: api/People/5
         [HttpGet("{id}")]
         public async Task<ActionResult<PersonModel>> GetPerson(Guid id)
         {
-            var person = await _context.People.FindAsync(id);
+            var person = await _repository.GetByIdAsync(id);
 
             if (person == null)
             {
@@ -48,8 +47,7 @@ namespace Scheduler.Controllers
         public async Task<ActionResult<PersonCreateModel>> PostPerson(PersonCreateModel personCreateModel)
         {
             var person = _mapper.Map<Person>(personCreateModel);
-            _context.People.Add(person);
-            await _context.SaveChangesAsynchronous();
+            await _repository.CreateAsync(person);
 
             return CreatedAtAction(nameof(GetPerson), new { id = person.Id }, person);
         }
@@ -58,14 +56,13 @@ namespace Scheduler.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePerson(Guid id)
         {
-            var person = await _context.People.FindAsync(id);
+            var person = await _repository.GetByIdAsync(id);
             if (person == null)
             {
                 return NotFound();
             }
 
-            _context.People.Remove(person);
-            await _context.SaveChangesAsynchronous();
+            await _repository.DeleteAsync(person);
 
             return NoContent();
         }
@@ -80,15 +77,13 @@ namespace Scheduler.Controllers
                 return BadRequest();
             }
 
-            _context.MarkAsModified(person);
-
             try
             {
-                await _context.SaveChangesAsynchronous();
+                await _repository.UpdateAsync(person);
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!PersonExists(id))
+                if (!await PersonExists(id))
                 {
                     return NotFound();
                 }
@@ -101,9 +96,9 @@ namespace Scheduler.Controllers
             return NoContent();
         }
 
-        private bool PersonExists(Guid id)
+        private async Task<bool> PersonExists(Guid id)
         {
-            return _context.People.Any(e => e.Id == id);
+            return await _repository.GetByIdAsync(id) != null;
         }
     }
 }

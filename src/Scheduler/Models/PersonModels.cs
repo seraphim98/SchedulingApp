@@ -4,27 +4,15 @@ namespace Scheduler.Models;
 
 public record class PersonModel(Guid Id, string FirstName, string LastName, List<string> EventNames);
 
-public class PersonCreateModel
+public class PersonCreateModel(string firstName, string lastName)
 {
-    public string FirstName { get; set; }
-    public string LastName { get; set; }
-
-    public PersonCreateModel(string firstName, string lastName)
-    {
-        FirstName = firstName;
-        LastName = lastName;
-    }
+    public string FirstName { get; set; } = firstName;
+    public string LastName { get; set; } = lastName;
 }
 
-public class PersonUpdateModel
+public class PersonUpdateModel(Guid id, string firstName, string lastName)
 {
-    public Guid Id {get; set;}
-    public string FirstName { get; set; }
-    public string LastName { get; set; }
-    public PersonUpdateModel(Guid id, string firstName, string lastName)
-    {
-        Id = id;
-        FirstName = firstName;
-        LastName = lastName;
-    }
+    public Guid Id { get; set; } = id;
+    public string FirstName { get; set; } = firstName;
+    public string LastName { get; set; } = lastName;
 }

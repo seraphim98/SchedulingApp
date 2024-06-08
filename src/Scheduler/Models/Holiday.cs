@@ -4,17 +4,11 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Scheduler.Models
 {
-    public class Holiday
+    public class Holiday(Guid id, string name, DateTime date)
     {
-        public Guid Id { get; set; }
-        public string Name { get; set; }
-        public DateTime Date { get; set; }
-
-        public Holiday(string name, DateTime date)
-        {
-            Name = name;
-            Date = date;
-        }
+        public Guid Id { get; set; } = id;
+        public string Name { get; set; } = name;
+        public DateTime Date { get; set; } = date;
     }
     
 }

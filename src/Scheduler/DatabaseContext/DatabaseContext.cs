@@ -29,7 +29,7 @@ namespace Scheduler.Database {
         {
             Entry(@event).State = EntityState.Modified;
         }
-        public void MarkAsModified(Holiday holiday){
+        public void MarkAsModified(Holiday holiday) {
             Entry(@holiday).State = EntityState.Modified;
         }
 
